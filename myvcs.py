@@ -26,7 +26,7 @@ def checkout(snapshot):
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser()
 	parser.add_argument('--checkout', help = 'reverts back to selected snapshot')
-	parser.add_argument('--latest', action='store true', help = 'reverts back to the latest snapshot')
+	parser.add_argument('--latest', action='store_true', help = 'reverts back to the latest snapshot')
 	arg = parser.parse_args()
 	if arg.checkout:
 		checkout(arg.checkout)
