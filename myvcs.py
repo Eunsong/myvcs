@@ -12,16 +12,35 @@ def backup():
 		subfolder_idx += 1
 	os.system('mkdir .myvcs/' + str(subfolder_idx) )
 	os.system('cp -r * .myvcs/' + str(subfolder_idx))
+	os.system('echo ' + str(subfolder_idx) + ' >.myvcs/.latest')
+
+
+def checkout(snapshot):
+	# check if selected snapshot is valid
+	if not os.path.isdir('.myvcs/' + snapshot):
+		print 'requested snapshot does not exist'
+		exit(0)
+	os.system('cp * .myvcs/' + snapshot + '/* ./') 
+
 
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser()
 	parser.add_argument('--checkout', help = 'reverts back to selected snapshot')
+	parser.add_argument('--latest', help = 'reverts back to the latest snapshot')
 	arg = parser.parse_args()
 	if arg.checkout:
-		# check if selected snapshot is valid
-		if not os.path.isdir('.myvcs/' + org.checkout):
-			print 'requested snapshot does not exist'
-			os.exit(0)
-		os.system('cp * .myvcs/' + arg.checkout + '/* ./') 
+		checkout(arg.checkout)
+	elif arg.latest:
+		try:
+			with open('.myvcs/.latest') as f:
+				latest = f.read().strip()
+				checkout(latest)
+		except IOError:
+			print '.myvcs/.latest cannot be accessed'
+			exit(0)	
+		#os.system('find .myvcs/ -type d | sort -n | tail -1 > .latest')	
 	else:
 		backup()
+
+
+
