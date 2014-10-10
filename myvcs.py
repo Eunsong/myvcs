@@ -13,7 +13,7 @@ def backup():
 	os.system('mkdir .myvcs/' + str(subfolder_idx) )
 	os.system('cp -r * .myvcs/' + str(subfolder_idx))
 	os.system('echo ' + str(subfolder_idx) + ' >.myvcs/.latest')
-
+	update_current(str(subfolder_idx))
 
 def checkout(snapshot):
 	# check if selected snapshot is valid
@@ -21,12 +21,17 @@ def checkout(snapshot):
 		print 'requested snapshot does not exist'
 		exit(0)
 	os.system('cp * .myvcs/' + snapshot + '/* ./') 
+	update_current(snapshot)
+
+def update_current(snapshot):
+	os.system('echo ' + snapshot + ' >.myvcs/head')
 
 
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser()
 	parser.add_argument('--checkout', help = 'reverts back to selected snapshot')
 	parser.add_argument('--latest', action='store_true', help = 'reverts back to the latest snapshot')
+	parser.add_argument('--current', action='store_true', help = 'returns a current working snapshot') 
 	arg = parser.parse_args()
 	if arg.checkout:
 		checkout(arg.checkout)
@@ -38,7 +43,15 @@ if __name__ == '__main__':
 		except IOError:
 			print '.myvcs/.latest cannot be accessed'
 			exit(0)	
-		#os.system('find .myvcs/ -type d | sort -n | tail -1 > .latest')	
+		#os.system('find .myvcs/ -type d | sort -n | tail -1 > .latest')
+	elif arg.current:
+		try:
+			with open('.myvcs/head') as f:
+				current_snapshot = f.read()
+			print current_snapshot
+		except IOError:
+			print 'cannot open .myvcs/head file'
+			exit(0)
 	else:
 		backup()
 
